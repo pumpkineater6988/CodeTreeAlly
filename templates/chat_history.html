@@ -1,0 +1,20 @@
+{% extends 'index.html' %}
+{% block page_title %}Chat History{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Chat History</h2>
+    {% if history and history|length > 0 %}
+    <ul class="list-group">
+        {% for chat in history %}
+        <li class="list-group-item">
+            <strong>{{ chat.module|capitalize }}:</strong> <span>{{ chat.user_input }}</span>
+            <br>
+            <small class="text-muted">Response: {{ chat.response|truncate(100) }}</small>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="alert alert-info mt-3">No chat history yet.</div>
+    {% endif %}
+</div>
+{% endblock %} 

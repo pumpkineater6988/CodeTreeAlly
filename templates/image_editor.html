@@ -1,0 +1,63 @@
+{% extends 'index.html' %}
+{% block page_title %}AI Image Editor{% endblock %}
+{% block content %}
+<style>
+    .progress-bar-anim {
+        background: linear-gradient(90deg, #2563eb 0%, #90aaff 100%);
+        animation: progress-bar-stripes 1s linear infinite;
+    }
+    @keyframes progress-bar-stripes {
+        0% { background-position: 1rem 0; }
+        100% { background-position: 0 0; }
+    }
+    body.dark-mode .progress {
+        background: #232323;
+    }
+    body.dark-mode .progress-bar-anim {
+        background: linear-gradient(90deg, #90aaff 0%, #2563eb 100%);
+    }
+</style>
+<div class="container mt-4">
+    <h2>AI Image Editor</h2>
+    <form method="POST" enctype="multipart/form-data" id="imgEditForm">
+        <div class="mb-3">
+            <label for="image" class="form-label">Upload Image</label>
+            <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+        </div>
+        <div class="mb-3">
+            <label for="prompt" class="form-label">Describe your edit (prompt)</label>
+            <input type="text" class="form-control" id="prompt" name="prompt" required>
+        </div>
+        <button type="submit" class="btn btn-primary" id="imgEditBtn">
+            <span id="imgEditBtnText">Edit Image</span>
+        </button>
+    </form>
+    <div id="imgEditProgress" class="progress mt-4" style="height: 8px; display:none;">
+        <div class="progress-bar progress-bar-anim progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+    </div>
+    {% if edited_image_url %}
+    <div class="mt-4">
+        <h5>Edited Image:</h5>
+        <img src="{{ edited_image_url }}" alt="Edited Image" class="img-fluid rounded border">
+        <a href="{{ edited_image_url }}" download class="btn btn-success mt-2">Download</a>
+    </div>
+    {% endif %}
+    {% if error %}
+    <div class="alert alert-danger mt-3">{{ error }}</div>
+    {% endif %}
+</div>
+<script>
+    document.getElementById('imgEditForm').addEventListener('submit', function() {
+        var btn = document.getElementById('imgEditBtn');
+        btn.disabled = true;
+        document.getElementById('imgEditBtnText').textContent = 'Editing...';
+        document.getElementById('imgEditProgress').style.display = '';
+    });
+    window.addEventListener('DOMContentLoaded', function() {
+        var btn = document.getElementById('imgEditBtn');
+        btn.disabled = false;
+        document.getElementById('imgEditBtnText').textContent = 'Edit Image';
+        document.getElementById('imgEditProgress').style.display = 'none';
+    });
+</script>
+{% endblock %} 

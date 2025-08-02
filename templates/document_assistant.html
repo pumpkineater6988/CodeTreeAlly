@@ -1,0 +1,118 @@
+{% extends 'index.html' %}
+{% block page_title %}Document Assistant{% endblock %}
+{% block content %}
+<style>
+    .thinking-indicator {
+        font-style: italic;
+        color: #888;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+    }
+    .thinking-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #888;
+        display: inline-block;
+        animation: blink 1.2s infinite both;
+    }
+    .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+    .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink {
+        0%, 100% { opacity: 0.2; }
+        50% { opacity: 1; }
+    }
+    .doc-result pre, .doc-result code, .doc-result {
+        background: #f5f5f5;
+        color: #222;
+        padding: 1em;
+        border-radius: 0.5em;
+        overflow-x: auto;
+        font-size: 1em;
+        margin-top: 1em;
+    }
+    body.dark-mode .doc-result pre, body.dark-mode .doc-result code, body.dark-mode .doc-result {
+        background: #232323;
+        color: #f1f1f1;
+    }
+</style>
+<div class="container mt-4">
+<h2>Document Assistant</h2>
+<form enctype="multipart/form-data" id="docForm" method="POST">
+<div class="mb-3">
+<label class="form-label" for="document">Upload Document</label>
+<input accept=".pdf,.docx,.xlsx,.csv,.json,.txt,image/*" class="form-control" id="document" name="document" required="" type="file"/>
+</div>
+<div class="mb-3">
+<label class="form-label" for="query_type">Query Type</label>
+<select class="form-select" id="query_type" name="query_type" required="">
+<option value="summary">Summarize</option>
+<option value="extract">Extract Data</option>
+<option value="context">Contextual Query</option>
+</select>
+</div>
+<div class="mb-3">
+<label class="form-label" for="query">Your Query</label>
+<input class="form-control" id="query" name="query" placeholder="E.g. 'What is the main topic?' or 'Extract all emails'" type="text"/>
+</div>
+<button class="btn btn-primary" id="docSubmitBtn" type="submit">
+<span id="docBtnText">Process</span>
+<span class="spinner-border spinner-border-sm" id="docSpinner" style="display:none;vertical-align:middle;"></span>
+</button>
+</form>
+<div class="thinking-indicator" id="thinking" style="display:none;">
+<span>Bot is thinking</span>
+<span class="thinking-dot"></span><span class="thinking-dot"></span><span class="thinking-dot"></span>
+</div>
+    {% if result %}
+    
+<div class="doc-result mt-4 position-relative">
+<h5>Result:</h5>
+<button class="copy-btn btn btn-sm btn-light position-absolute" onclick="copyResult()" style="top: 0.5em; right: 0.5em;">
+            📋 Copy
+        </button>
+<div id="doc-output" style="white-space: pre-wrap;">{{ result }}</div>
+</div>
+
+    {% endif %}
+    {% if error %}
+    <div class="alert alert-danger mt-3">{{ error }}</div>
+    {% endif %}
+</div>
+<script>
+    // Show thinking indicator on form submit
+    document.getElementById('docForm').addEventListener('submit', function() {
+        document.getElementById('thinking').style.display = '';
+        var btn = document.getElementById('docSubmitBtn');
+        btn.disabled = true;
+        document.getElementById('docBtnText').style.display = 'none';
+        document.getElementById('docSpinner').style.display = '';
+    });
+    // Hide thinking indicator and re-enable button after page load (response received)
+    window.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('thinking').style.display = 'none';
+        var btn = document.getElementById('docSubmitBtn');
+        btn.disabled = false;
+        document.getElementById('docBtnText').style.display = '';
+        document.getElementById('docSpinner').style.display = 'none';
+    });
+
+    function copyResult() {
+        const output = document.getElementById('doc-output');
+        const range = document.createRange();
+        range.selectNode(output);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        try {
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+            alert('Copied to clipboard!');
+        } catch (err) {
+            alert('Failed to copy!');
+        }
+    }
+    </script>
+{% endblock %} 

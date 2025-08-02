@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenAI App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-bg-light: #fff;
+            --sidebar-bg-dark: #181818;
+            --sidebar-text-light: #111;
+            --sidebar-text-dark: #f1f1f1;
+            --sidebar-active-light-bg: #f5f5f5;
+            --sidebar-active-light-text: #111;
+            --sidebar-active-dark-bg: #242424;
+            --sidebar-active-dark-text: #f1f1f1;
+            --sidebar-hover-light-bg: #f5f5f5;
+            --sidebar-hover-light-text: #111;
+            --sidebar-hover-dark-bg: #242424;
+            --sidebar-hover-dark-text: #f1f1f1;
+            --menu-btn-light: #111;
+            --menu-btn-dark: #fff;
+            --navbar-bg-light: #fff;
+            --navbar-bg-dark: #232323;
+            --navbar-title-light: #222;
+            --navbar-title-dark: #f1f1f1;
+            --icon-sun-light: #f7c948;
+            --icon-sun-dark: #ffe9a7;
+            --icon-moon-light: #2563eb;
+            --icon-moon-dark: #f7c948;
+            --main-bg-light: #fff;
+            --main-bg-dark: #181818;
+            --main-text-light: #222;
+            --main-text-dark: #f1f1f1;
+            --container-bg-light: #fff;
+            --container-bg-dark: #232323;
+            --container-text-light: #222;
+            --container-text-dark: #f1f1f1;
+            --toggle-bg-light: #ccc;
+            --toggle-bg-dark: #888;
+            --toggle-thumb-light: #fff;
+            --toggle-thumb-dark: #111;
+        }
+        body { min-height: 100vh; transition: background 0.3s, color 0.3s; }
+        .sidebar {
+            min-width: 220px;
+            max-width: 220px;
+            background: var(--sidebar-bg-light);
+            color: var(--sidebar-text-light);
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 1040;
+            transition: transform 0.3s ease, background 0.3s, color 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .sidebar.closed {
+            transform: translateX(-100%);
+        }
+        body.dark-mode .sidebar {
+            background: var(--sidebar-bg-dark);
+            color: var(--sidebar-text-dark);
+        }
+        .sidebar .sidebar-header {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+        .sidebar .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 1.5rem 0 0.2rem 0.5rem;
+        }
+        .sidebar .nav-section {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+        .sidebar .nav-link {
+            color: var(--sidebar-text-light);
+            transition: color 0.3s, background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.7em;
+            font-size: 1.08rem;
+            padding: 0.6em 1em;
+            border-radius: 0.5em;
+            white-space: nowrap;
+        }
+        .sidebar .nav-link.active {
+            background: var(--sidebar-active-light-bg) !important;
+            color: var(--sidebar-active-light-text) !important;
+        }
+        .sidebar .nav-link:hover {
+            background: var(--sidebar-hover-light-bg) !important;
+            color: var(--sidebar-hover-light-text) !important;
+        }
+        body.dark-mode .sidebar .nav-link {
+            color: var(--sidebar-text-dark);
+        }
+        body.dark-mode .sidebar .nav-link.active {
+            background: var(--sidebar-active-dark-bg) !important;
+            color: var(--sidebar-active-dark-text) !important;
+        }
+        body.dark-mode .sidebar .nav-link:hover {
+            background: var(--sidebar-hover-dark-bg) !important;
+            color: var(--sidebar-hover-dark-text) !important;
+        }
+        .main-content {
+            margin-left: 220px;
+            padding: 0;
+            transition: margin-left 0.3s, padding-left 0.3s;
+            min-height: 100vh;
+            background: var(--main-bg-light);
+            color: var(--main-text-light);
+            padding-left: 20px;
+        }
+        .main-content.sidebar-closed {
+            margin-left: 0;
+            padding-left: 0;
+        }
+        body.dark-mode .main-content {
+            background: var(--main-bg-dark);
+            color: var(--main-text-dark);
+        }
+        #module-content.centered-home {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+        }
+        /* Navbar styles */
+        .navbar-custom {
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: var(--navbar-bg-light);
+            border-bottom: 1px solid #eee;
+            transition: background 0.3s;
+        }
+        body.dark-mode .navbar-custom {
+            background: var(--navbar-bg-dark);
+            border-bottom: 1px solid #333;
+        }
+        .navbar-title {
+            flex: 1;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--navbar-title-light);
+            transition: color 0.3s;
+        }
+        body.dark-mode .navbar-title {
+            color: var(--navbar-title-dark);
+        }
+        .menu-btn {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2000;
+            background: none;
+            border: none;
+            color: var(--menu-btn-light);
+            font-size: 1.7rem;
+            transition: color 0.3s;
+        }
+        body.dark-mode .menu-btn {
+            color: var(--menu-btn-dark);
+        }
+        .menu-btn[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            left: 2.5rem;
+            top: 0.2rem;
+            background: #333;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        .theme-switch {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .theme-icon {
+            font-size: 1.1rem;
+            margin: 0 3px;
+            transition: color 0.3s;
+        }
+        .theme-icon.sun {
+            color: var(--icon-sun-light);
+        }
+        .theme-icon.moon {
+            color: var(--icon-moon-light);
+        }
+        body.dark-mode .theme-icon.sun {
+            color: var(--icon-sun-dark);
+        }
+        body.dark-mode .theme-icon.moon {
+            color: var(--icon-moon-dark);
+        }
+        .theme-toggle-switch {
+            width: 44px;
+            height: 24px;
+            background: var(--toggle-bg-light);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        .theme-toggle-switch .toggle-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--toggle-thumb-light);
+            border-radius: 50%;
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            transition: left 0.3s, background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        .theme-toggle-switch.dark {
+            background: var(--toggle-bg-dark);
+        }
+        .theme-toggle-switch.dark .toggle-thumb {
+            left: 22px;
+            background: var(--toggle-thumb-dark);
+        }
+        /* Theme for all .container blocks */
+        .container, .container.mt-4, .container.mt-4 .bg-light {
+            background: var(--container-bg-light) !important;
+            color: var(--container-text-light) !important;
+            transition: background 0.3s, color 0.3s;
+        }
+        body.dark-mode .container, body.dark-mode .container.mt-4, body.dark-mode .container.mt-4 .bg-light {
+            background: var(--container-bg-dark) !important;
+            color: var(--container-text-dark) !important;
+        }
+        body.dark-mode pre.bg-light {
+            background: #232323 !important;
+            color: #f1f1f1 !important;
+        }
+        #welcome-bg {
+            position: absolute;
+            top: 56px;
+            left: 0;
+            width: 100vw;
+            height: calc(100vh - 56px);
+            z-index: 0;
+            pointer-events: none;
+            display: none;
+        }
+        .main-content.welcome-bg {
+            position: relative;
+            overflow: hidden;
+        }
+        @media (max-width: 768px) {
+            .sidebar { position: fixed; min-width: 220px; max-width: 80vw; height: 100vh; }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="sidebar d-flex flex-column p-3" id="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">Code Tree Ally</span>
+        </div>
+        <div class="nav-section">
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li><a href="{{ url_for('home') }}" class="nav-link {% if request.endpoint == 'home' %}active{% endif %}"><i class="fa fa-home me-2"></i>Home</a></li>
+                <li><a href="{{ url_for('prompt_optimizer.prompt_optimizer_home') }}" class="nav-link {% if 'prompt_optimizer' in request.endpoint %}active{% endif %}"><i class="fa fa-magic me-2"></i>Prompt Optimizer</a></li>
+                <li><a href="{{ url_for('document_assistant.document_assistant_home') }}" class="nav-link {% if 'document_assistant' in request.endpoint %}active{% endif %}"><i class="fa fa-file-alt me-2"></i>Document Assistant</a></li>
+                <li><a href="{{ url_for('developer_copilot.developer_copilot_home') }}" class="nav-link {% if 'developer_copilot' in request.endpoint %}active{% endif %}"><i class="fa fa-code me-2"></i>Code Copilot</a></li>
+                <li><a href="{{ url_for('internal_chatbot.internal_chatbot_home') }}" class="nav-link {% if 'internal_chatbot' in request.endpoint %}active{% endif %}"><i class="fa fa-robot me-2"></i>Chatbot</a></li>
+                <li><a href="{{ url_for('chat_history.chat_history_home') }}" class="nav-link {% if 'chat_history' in request.endpoint %}active{% endif %}"><i class="fa fa-history me-2"></i>History</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="main-content" id="mainContent">
+        <nav class="navbar-custom">
+            <button class="menu-btn" id="menuBtn" title="Menu" onclick="toggleSidebar()">
+                <i class="fa fa-bars"></i>
+            </button>
+            <span class="navbar-title">{% block page_title %}Dashboard{% endblock %}</span>
+            <div class="theme-switch">
+                <span class="theme-icon sun"><i class="fa fa-sun"></i></span>
+                <div class="theme-toggle-switch" id="themeSwitch">
+                    <span class="toggle-thumb"></span>
+                </div>
+                <span class="theme-icon moon"><i class="fa fa-moon"></i></span>
+            </div>
+        </nav>
+        {% block content %}
+        <div id="module-content" class="mt-4 centered-home">
+            <canvas id="welcome-bg"></canvas>
+            <h2>Welcome to Code Tree Ally</h2>
+            <p>Select a module from the sidebar to get started.</p>
+        </div>
+        {% endblock %}
+    </div>
+    <script>
+        // Theme toggle logic
+        function setTheme(dark) {
+            if (dark) {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+                document.getElementById('themeSwitch').classList.add('dark');
+            } else {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+                document.getElementById('themeSwitch').classList.remove('dark');
+            }
+        }
+        function toggleTheme() {
+            setTheme(!document.body.classList.contains('dark-mode'));
+        }
+        // On load, set theme from localStorage
+        (function() {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') setTheme(true);
+            else setTheme(false);
+        })();
+        document.getElementById('themeSwitch').onclick = toggleTheme;
+
+        // Sidebar toggle logic
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            sidebar.classList.toggle('closed');
+            mainContent.classList.toggle('sidebar-closed');
+        }
+        // Optional: close sidebar on small screens by default
+        window.addEventListener('DOMContentLoaded', function() {
+            if (window.innerWidth < 900) {
+                toggleSidebar();
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
